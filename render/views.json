@@ -1,0 +1,121 @@
+[
+  {
+    "id": "wc-lavatorio",
+    "variant": "a",
+    "label": "WC partilhado · do lavatório para o duche",
+    "eye": [
+      1.28,
+      4.55,
+      1.42
+    ],
+    "target": [
+      0.62,
+      6.22,
+      1
+    ],
+    "lens": 12,
+    "style": "madeira-azul"
+  },
+  {
+    "id": "wc-duche",
+    "variant": "a",
+    "label": "WC partilhado · duche (formato da suite)",
+    "eye": [
+      0.7,
+      4.52,
+      1.5
+    ],
+    "target": [
+      0.7,
+      6.32,
+      1.1
+    ],
+    "lens": 12,
+    "style": "madeira-azul"
+  },
+  {
+    "id": "wc-porta",
+    "variant": "a",
+    "label": "WC partilhado · da porta",
+    "eye": [
+      2.36,
+      5.75,
+      1.5
+    ],
+    "target": [
+      0.4,
+      5,
+      1.3
+    ],
+    "lens": 14,
+    "style": "madeira-azul"
+  },
+  {
+    "id": "quarto2-sul",
+    "variant": "a",
+    "label": "Quarto 2 · a olhar para sul",
+    "eye": [
+      1.3,
+      0.45,
+      1.5
+    ],
+    "target": [
+      1.2,
+      4.3,
+      1.2
+    ],
+    "lens": 14,
+    "style": "madeira-azul"
+  },
+  {
+    "id": "quarto2-norte",
+    "variant": "a",
+    "label": "Quarto 2 · a olhar para norte",
+    "eye": [
+      1.2,
+      3.95,
+      1.5
+    ],
+    "target": [
+      1.7,
+      0,
+      1.3
+    ],
+    "lens": 14,
+    "style": "madeira-azul"
+  },
+  {
+    "id": "suite-sul",
+    "variant": "a",
+    "label": "Suite · a olhar para sul",
+    "eye": [
+      7.3,
+      3.3,
+      1.5
+    ],
+    "target": [
+      6.9,
+      6.32,
+      1.2
+    ],
+    "lens": 14,
+    "style": "madeira-azul"
+  },
+  {
+    "id": "wcsuite-duche",
+    "variant": "a",
+    "label": "WC da suite · duche",
+    "eye": [
+      7.75,
+      0.45,
+      1.5
+    ],
+    "target": [
+      7.75,
+      2.85,
+      1.2
+    ],
+    "lens": 14,
+    "style": "madeira-azul"
+  }
+]
