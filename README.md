@@ -31,7 +31,9 @@ A página **Obra** tem um separador por ofício, cada um com o seu endereço par
 
 Em cada separador há o link direto (botão «Copiar» e, no telemóvel, «Partilhar»), o link para a folha desse ofício no PDF e os **materiais previstos**, calculados a partir da planta: o que é para escolher e comprar (normalmente pelo dono da obra), o material de obra (normalmente do profissional) e as **ferramentas e equipamento** (carro de mão, betoneira, talochas, corta-tubos, detetor de tensão…), cada linha com uma pesquisa na Leroy Merlin. O material de obra vem na unidade em que se compra: sacos de cimento de 25 kg e m³ de areia (pelas argamassas, o reboco e a betonilha), tijolos, barras de PVC de 3 m, metros e rolos de tubo anelado e de fio (medidos na planta, do quadro às caixas de derivação e daí a cada ponto). As quantidades são estimativas, para confirmar em obra antes de encomendar. O link copiado usa o endereço onde o site está aberto: para o mandar a alguém, copiem-no no site publicado e não em `localhost`.
 
-A decoração e o orçamento saíram da página e vão voltar como páginas próprias, ao lado da Obra. O código continua no repositório (`src/components/Decor.tsx` e `src/decor/`), tal como a tabela de medidas para a obra (`src/components/SetOut.tsx`). O orçamento (`src/budget/data.ts`, com as propostas e os preços, e `src/components/Budget.tsx`) só existe na cópia local: não vai para o repositório público. O que as folhas dos ofícios usam da proposta da Bonina (o que ela instala e o que fica para os outros ofícios) está em `src/works/bonina.ts`.
+Ao lado da Obra há **Compras** (materiais e ferramentas, preços de referência, o que já se pagou) e **Orçamentos** (propostas recebidas e as contas). As duas pedem um código à primeira vez neste navegador. Com `npm run dev`, o que se marca fica em `dados/compras.json` e `dados/orcamento.json` (o telemóvel na mesma rede vê o mesmo ficheiro). No site publicado, fica neste navegador. Os JSON da pasta `dados/` não vão para o repositório público.
+
+A decoração saiu da página e vai voltar como página própria. O código continua no repositório (`src/components/Decor.tsx` e `src/decor/`), tal como a tabela de medidas para a obra (`src/components/SetOut.tsx`). O que as folhas dos ofícios usam da proposta da Bonina (o que ela instala e o que fica para os outros ofícios) está em `src/works/bonina.ts`.
 
 ## Correr localmente
 
@@ -80,7 +82,7 @@ npm run publicar
 npm run publicar -- "Corrige as quantidades do eletricista"
 ```
 
-Publica o que está na pasta, incluindo o que ainda não está em commit, num commit novo no `main` do remote `github` (o repositório público). Não mexe nos branches nem nos commits locais, e assina com o email privado do GitHub (`<id>+<utilizador>@users.noreply.github.com`). Ficam de fora o orçamento (`src/budget/data.ts` e `src/components/Budget.tsx`) e o levantamento (`uploads/`); a lista está em `scripts/publicar.mjs`, que também se recusa a publicar se algum ficheiro público importar um destes. Precisa do `gh` com sessão iniciada (`gh auth login`).
+Publica o que está na pasta, incluindo o que ainda não está em commit, num commit novo no `main` do remote `github` (o repositório público). Não mexe nos branches nem nos commits locais, e assina com o email privado do GitHub (`<id>+<utilizador>@users.noreply.github.com`). Ficam de fora o levantamento (`uploads/`) e os JSON da pasta `dados/` (o que já se pagou, gravado localmente). A lista está em `scripts/publicar.mjs`. Precisa do `gh` com sessão iniciada (`gh auth login`).
 
 A seguir, o workflow `.github/workflows/deploy.yml` compila e publica o site no GitHub Pages (**Settings → Pages → Source: GitHub Actions**), em `https://<utilizador>.github.io/<repositório>/`, em 1 a 2 minutos. O site pede aos motores de busca para não o indexarem (`noindex` no `index.html`), mas qualquer pessoa com o link o vê, e o repositório é público.
 

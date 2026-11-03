@@ -1,5 +1,6 @@
 import { Download } from 'lucide-react'
 import { Fragment, Suspense, lazy, useEffect, useMemo, useState, type MouseEvent, type ReactNode } from 'react'
+import { PinForm, isUnlocked } from '@/budget/gate'
 import { cameraPresets, type CameraPreset } from '@/components/cameraPresets'
 import { FloorPlan } from '@/components/FloorPlan'
 import { PlanLegend } from '@/components/Legend'
@@ -27,6 +28,14 @@ const setParam = (key: string, value: string | null) => {
 }
 /** Página da obra: `?obra=pedreiro|canalizador|eletricista`; sem o parâmetro, a planta e o 3D. */
 const tradeInUrl = () => trades.find((t) => t === new URLSearchParams(window.location.search).get('obra')) ?? null
+
+/** Compras e orçamentos: `?compras` / `?orcamentos`. Pedem o código à primeira vez neste navegador. */
+const extras = [
+  { key: 'compras' as const, label: 'Compras', Page: lazy(() => import('@/components/Purchases')) },
+  { key: 'orcamentos' as const, label: 'Orçamentos', Page: lazy(() => import('@/components/Budget')) },
+]
+type Extra = (typeof extras)[number]['key']
+const extraInUrl = () => extras.find((p) => new URLSearchParams(window.location.search).has(p.key))?.key ?? null
 
 /** Propostas postas de parte: continuam acessíveis, com o aviso de arquivada. */
 const archived = ['a', 'e'] as const
@@ -57,17 +66,26 @@ export default function App() {
     setLastTrade(t)
     setParam('obra', t)
   }
+  const [extra, setExtra] = useState<Extra | null>(extraInUrl)
+  const [unlocked, setUnlocked] = useState(isUnlocked)
+  const ExtraPage = extras.find((p) => p.key === extra)?.Page
+
   /** Muda de página como um link normal (fica no histórico), sem recarregar. */
-  const goTo = (t: Trade | null) => (e: MouseEvent<HTMLAnchorElement>) => {
+  const goTo = (t: Trade | null, x: Extra | null = null) => (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
     e.preventDefault()
-    if (t === trade) return
+    if (t === trade && x === extra) return
     const url = new URL(window.location.href)
-    if (t) url.searchParams.set('obra', t)
-    else url.searchParams.delete('obra')
+    if (x) url.search = `?${x}`
+    else {
+      for (const p of extras) url.searchParams.delete(p.key)
+      if (t) url.searchParams.set('obra', t)
+      else url.searchParams.delete('obra')
+    }
     window.history.pushState(null, '', url)
     setTradeState(t)
     if (t) setLastTrade(t)
+    setExtra(x)
     window.scrollTo(0, 0)
   }
   useEffect(() => {
@@ -75,6 +93,7 @@ export default function App() {
       const t = tradeInUrl()
       setTradeState(t)
       if (t) setLastTrade(t)
+      setExtra(extraInUrl())
       setFlipState(new URLSearchParams(window.location.search).get('flip') === '1')
     }
     window.addEventListener('popstate', onPop)
@@ -126,7 +145,7 @@ export default function App() {
                   </a>
                 ))}
               </div>
-              {!trade && (
+              {!trade && !extra && (
                 <p className="text-xs text-stone-500">
                   Arquivadas:{' '}
                   {archived.map((v, i) => (
@@ -141,7 +160,7 @@ export default function App() {
               )}
             </div>
           </div>
-          {trade || variant === 'c' ? (
+          {trade || extra || variant === 'c' ? (
             <h1 className="mt-3 text-xl font-semibold tracking-tight sm:text-2xl">
               {variantLabels.c.short} <span className="font-normal text-stone-500">· {variantLabels.c.long}</span>
             </h1>
@@ -155,18 +174,29 @@ export default function App() {
               </button>
             </div>
           )}
-          <nav aria-label="Páginas" className="mt-4 -mb-5 flex gap-6 text-sm lg:-mb-6">
-            <PageLink href={`${import.meta.env.BASE_URL}${flip ? '?flip=1' : ''}`} active={!trade} onClick={goTo(null)}>
+          <nav aria-label="Páginas" className="mt-4 -mb-5 flex gap-6 overflow-x-auto text-sm whitespace-nowrap lg:-mb-6">
+            <PageLink href={`${import.meta.env.BASE_URL}${flip ? '?flip=1' : ''}`} active={!trade && !extra} onClick={goTo(null)}>
               Planta e 3D
             </PageLink>
-            <PageLink href={tradeHref(trade ?? lastTrade, flip)} active={!!trade} onClick={goTo(trade ?? lastTrade)}>
-              Obra: ofícios e materiais
+            <PageLink href={tradeHref(trade ?? lastTrade, flip)} active={!!trade && !extra} onClick={goTo(trade ?? lastTrade)}>
+              Obra<span className="max-sm:hidden">: ofícios e materiais</span>
             </PageLink>
+            {extras.map((p) => (
+              <PageLink key={p.key} href={`${import.meta.env.BASE_URL}?${p.key}`} active={extra === p.key} onClick={goTo(null, p.key)}>
+                {p.label}
+              </PageLink>
+            ))}
           </nav>
         </div>
       </header>
 
-      {trade ? (
+      {extra && !unlocked ? (
+        <PinForm onUnlock={() => setUnlocked(true)} />
+      ) : ExtraPage ? (
+        <Suspense fallback={<p className="mx-auto max-w-7xl px-4 py-6 text-sm text-stone-500 sm:px-6 lg:py-8">A carregar…</p>}>
+          <ExtraPage />
+        </Suspense>
+      ) : trade ? (
         <Works trade={trade} onTrade={setTrade} flip={flip} onFlip={setFlip} />
       ) : (
         <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:py-8">

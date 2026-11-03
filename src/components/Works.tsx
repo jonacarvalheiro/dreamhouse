@@ -10,20 +10,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { plantasPdf, tradePdfPage } from '@/content'
-import { buildProposalC } from '@/plan/proposalC'
-import { FLOOR_TO_FLOOR, calcC } from '@/plan/stair'
-import { electricianMaterials, lmSearch, masonMaterials, materialsNote, plumberMaterials, qtyText, type Material, type MaterialGroup, type TradeMaterials } from '@/works/materials'
+import { materials, plan, stair } from '@/works/current'
+import { lmSearch, materialsNote, qtyText, type Material, type MaterialGroup } from '@/works/materials'
 import { PLUMBER_COLOR, electricianData, flipNote, legendEl, masonData, plumberData, tradeHref, tradeInfo, trades, type Block, type Trade } from '@/works/trades'
 
-const sC = calcC(FLOOR_TO_FLOOR)
-const plan = buildProposalC(sC)
-const stair = { kind: 'l', s: sC } as const
 const mason = masonData(plan, { works: 'a planta de obra', trades: 'pontos nos separadores Canalizador e Eletricista' })
-const materials: Record<Trade, TradeMaterials> = {
-  pedreiro: masonMaterials(plan),
-  canalizador: plumberMaterials(plan),
-  eletricista: electricianMaterials(plan, electricianData(plan, stair)),
-}
 const icons: Record<Trade, LucideIcon> = { pedreiro: Hammer, canalizador: Droplets, eletricista: Zap }
 const coords = (flip: boolean) => `Medidas em metros a partir das faces interiores das paredes poente (x) e norte (y).${flipNote(flip)}`
 

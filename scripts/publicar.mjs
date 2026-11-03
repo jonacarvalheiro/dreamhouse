@@ -5,8 +5,11 @@ import { execFileSync } from 'node:child_process'
 import { rmSync } from 'node:fs'
 import path from 'node:path'
 
-/** Fora do repositório público: os orçamentos, com preços e condições, e o levantamento original da casa. */
-const PRIVATE = ['src/budget/data.ts', 'src/components/Budget.tsx', 'uploads']
+/**
+ * Fora do repositório público: o levantamento original da casa e os JSON onde o site local grava o que já se pagou
+ * (no site publicado isso fica neste navegador). Compras e orçamentos vão para o site, atrás de um código.
+ */
+const PRIVATE = ['dados', 'uploads']
 const REMOTE = 'github'
 const BRANCH = 'main'
 
@@ -38,14 +41,14 @@ try {
   rmSync(index, { force: true })
 }
 
-// o que é público não pode depender do que fica de fora
+// o que é público não pode apontar para o levantamento
 let leaks = ''
 try {
-  leaks = git(['grep', '-l', '-e', "from '@/budget/data'", '-e', "from '@/components/Budget'", '-e', "from './Budget'", tree, '--', '*.ts', '*.tsx'])
+  leaks = git(['grep', '-l', '-F', '-e', 'uploads/', tree, '--', 'src'])
 } catch {
   // sem resultados
 }
-if (leaks) fail(`Estes ficheiros importam ficheiros privados:\n${leaks}`)
+if (leaks) fail(`Estes ficheiros apontam para o levantamento (uploads/), que não vai para o repositório público:\n${leaks}`)
 
 let parent = ''
 try {
@@ -69,5 +72,6 @@ const commit = git(['commit-tree', tree, ...(parent ? ['-p', parent] : []), '-m'
   GIT_COMMITTER_NAME: name,
   GIT_COMMITTER_EMAIL: email,
 })
-git(['push', '--quiet', REMOTE, `${commit}:refs/heads/${BRANCH}`])
+// sem um buffer grande, o git manda aos bocados os pushes de mais de 1 MB e o GitHub responde HTTP 400
+git(['-c', 'http.postBuffer=524288000', 'push', '--quiet', REMOTE, `${commit}:refs/heads/${BRANCH}`])
 console.log(`Enviado. O site atualiza em 1 a 2 minutos: https://${user.login.toLowerCase()}.github.io/${repo}/`)
